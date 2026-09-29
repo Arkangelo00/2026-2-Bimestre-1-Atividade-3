@@ -29,7 +29,7 @@ O uso do Docker garante um ambiente uniforme e isolado para execução do códig
 
 ---
 
-### Parte 1: Cenário 1 — Threads no Mesmo Processo (Apresentador: Arkângelo)
+### Parte 1: Cenário 1 — Threads no Mesmo Processo (Luiz)
 
 #### Explicação:
 A comunicação entre tarefas leves (*threads*) ocorre compartilhando o mesmo espaço de endereçamento de memória dentro de um único processo do Node.js.
@@ -122,7 +122,7 @@ if (isMainThread) {
 
 ---
 
-### Parte 2: Cenário 2 — Processos Distintos no Mesmo Computador (Apresentador: Jadson)
+### Parte 2: Cenário 2 — Processos Distintos no Mesmo Computador (Arkângelo)
 
 #### Explicação:
 A comunicação é feita entre dois processos totalmente isolados pelo Sistema Operacional executando na mesma máquina.
@@ -205,7 +205,7 @@ if (!process.env.IS_CHILD) {
 
 ---
 
-### Parte 3: Cenário 3 — Processos via Sockets TCP / Docker (Apresentador: Luiz)
+### Parte 3: Cenário 3 — Processos via Sockets TCP / Docker (jadson)
 
 #### Explicação:
 A comunicação é levada para a camada de rede usando o protocolo **TCP (Transmission Control Protocol)** via biblioteca nativa `net` do Node.js. Esse modelo permite a comunicação tanto em localhost quanto entre computadores fisicamente distantes ou contêineres em uma rede virtualizada.
