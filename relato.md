@@ -1,36 +1,42 @@
-# Relatório sobre implementação de comunicação entre tarefas em TypeScript
+# Relatório e Roteiro de Apresentação: Comunicação Inter-Processos (IPC) em TypeScript
 
-## Introdução
-Este relato faz parte do processo avaliativo da disciplina de Sistemas Operacionais no curso superior em Análise e Desenvolvimento de Sistemas, ofertado na Diretoria Acadêmica de Gestão e Tecnologia da Informação (DIATINF) no campus Natal-Central do Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Norte (IFRN).
-
-Tem como objetivo principal relatar as implementações de comunicação entre tarefas na linguagem **TypeScript (Node.js)**.
-
-O grupo de trabalho foi formado por: **Arkângelo, Jadson e Luiz**.
-
----
-
-## Comunicação entre tarefas em TypeScript
-
-### Informações gerais
-TypeScript é uma linguagem fortemente tipada baseada em JavaScript que executa sobre o runtime Node.js. Embora o JavaScript seja conhecido por possuir um modelo single-threaded com *Event Loop*, o Node.js expõe APIs nativas do sistema operacional para suportar threads secundárias (`worker_threads`), subprocessos (`child_process`) e sockets de rede (`net`), permitindo implementar modelos complexos de Comunicação Inter-Processos (IPC).
-
-### Qual o objetivo de comunicação entre tarefas?
-O objetivo é permitir que tarefas paralelas ou concorrentes troquem informações, sincronizem suas execuções e compartilhem recursos de maneira segura. Isso possibilita decompor um problema complexo (como o padrão Produtor-Consumidor) em partes independentes, otimizando o uso de múltiplos núcleos do processador ou a distribuição em rede.
-
-### Explicar porque usar Docker nesse trabalho. Qual a configuração do Docker?
-O uso do Docker garante um ambiente uniforme e isolado para execução do código TypeScript sem depender de configurações locais do sistema operacional ou versões do Node.js instaladas na máquina do usuário. Além disso, permite simular em um único computador múltiplos nós de rede conectados via redes virtuais (`bridge`), facilitando a demonstração de comunicação em sistemas distribuídos.
-
-**Configuração do Docker utilizada:**
-- **Dockerfile:** Baseado na imagem oficial `node:20-alpine`, instalando as dependências do projeto e compilando o TypeScript via `ts-node`.
-- **docker-compose.yml:** Cria dois serviços (`servidor` e `cliente`) interligados por uma rede interna virtual do Docker (`rede-ipc`), simulando duas máquinas isoladas na rede.
+**Instituição:** Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Norte (IFRN)  
+**Campus:** Natal-Central / DIATINF  
+**Curso:** Superior em Análise e Desenvolvimento de Sistemas  
+**Disciplina:** Sistemas Operacionais  
+**Equipe:** Arkângelo, Jadson e Luiz  
 
 ---
 
-## Comunicação entre tarefas com linhas de execução no mesmo processo
+## 1. Fundamentação Teórica
 
-### Código
-Utilizamos a biblioteca `worker_threads` do Node.js associada à memória compartilhada em baixo nível via `SharedArrayBuffer` e sincronização por troca de mensagens entre a thread principal e os workers.
+### Visão Geral e Objetivo do IPC
+TypeScript executa sobre o runtime Node.js. Embora o JavaScript utilize tradicionalmente uma única linha de execução (*single-threaded*) com *Event Loop*, o Node.js expõe APIs do sistema operacional para suportar threads secundárias (`worker_threads`), subprocessos (`child_process`) e conexões de rede (`net`).
 
+O objetivo da Comunicação Inter-Processos (IPC) é permitir que tarefas paralelas troquem dados e sincronizem a execução para resolver um problema de forma cooperativa — como no padrão **Produtor-Consumidor**, onde uma tarefa gera os dados e outra realiza o processamento (soma do vetor de 100 números).
+
+### Utilização do Docker
+O Docker padroniza o ambiente de execução independentemente das configurações da máquina local. Ele permite simular em um único computador múltiplos nós isolados conectados em uma rede virtual (`bridge`), demonstrando a comunicação em sistemas distribuídos de forma fiel.
+
+- **Dockerfile:** Baseado na imagem `node:20-alpine`, gerenciando dependências e execução via `tsx`.
+- **docker-compose.yml:** Sobe dois containers (`servidor` e `cliente`) interligados pela rede `rede-ipc`.
+
+---
+
+## 2. Roteiro de Apresentação em Sala de Aula
+
+---
+
+### Integrante 1: Arkângelo — Introdução, Conceitos e Cenário 1
+
+#### Texto Expositivo para Apresentação
+> A comunicação entre tarefas é essencial na computação concorrente e distribuída, permitindo que processos dividam cargas de trabalho e sincronizem estados para resolver problemas conjuntos.
+> 
+> O Docker é utilizado para garantir reprodutibilidade do ambiente e isolamento em redes virtuais, simulando diferentes nós sem contaminar o sistema hospedeiro.
+> 
+> No **Cenário 1**, a comunicação ocorre na mesma linha de execução (mesmo processo) utilizando a biblioteca `worker_threads` e memória compartilhada via `SharedArrayBuffer`. A Thread Produtora grava 100 inteiros diretamente no buffer de memória e envia um sinal para a Thread Consumidora realizar a leitura e soma sem necessidade de cópia de dados pelo sistema operacional.
+
+#### Código Comentado (`src/typescript/cenario1_threads.ts`)
 ```typescript
 import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
 
@@ -42,11 +48,15 @@ function getRandomInt(min: number, max: number): number {
 
 if (isMainThread) {
   console.log('iniciou (Thread Principal)');
+  
+  // Aloca bloco de memória compartilhada direto na RAM (400 bytes para 100 inteiros de 32 bits)
   const sharedBuffer = new SharedArrayBuffer(TAMANHO_DADOS * Int32Array.BYTES_PER_ELEMENT);
 
+  // Instancia as duas threads passando a referência da memória compartilhada
   const produtor = new Worker(__filename, { workerData: { role: 'produtor', buffer: sharedBuffer } });
   const consumidor = new Worker(__filename, { workerData: { role: 'consumidor', buffer: sharedBuffer } });
 
+  // Orquestração de mensagens entre threads
   produtor.on('message', (msg) => {
     if (msg === 'dados_prontos') {
       consumidor.postMessage('iniciar_consumo');
@@ -63,7 +73,7 @@ if (isMainThread) {
   consumidor.on('exit', aoFinalizar);
 } else {
   const { role, buffer } = workerData;
-  const sharedArray = new Int32Array(buffer);
+  const sharedArray = new Int32Array(buffer); // Aponta a view typed array para o buffer
 
   if (role === 'produtor') {
     console.log('# produzir - iniciado');
