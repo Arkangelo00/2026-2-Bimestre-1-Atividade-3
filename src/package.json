@@ -1,0 +1,19 @@
+{
+  "name": "ipc-typescript-so",
+  "version": "1.0.0",
+  "main": "dist/cenario1_threads.js",
+  "scripts": {
+    "build": "tsc",
+    "cenario1": "ts-node src/typescript/cenario1_threads.ts",
+    "cenario2": "ts-node src/typescript/cenario2_mesmo_pc.ts",
+    "cenario3:server": "ts-node src/typescript/cenario3_servidor.ts",
+    "cenario3:client": "ts-node src/typescript/cenario3_cliente.ts"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0"
+  }
+}
