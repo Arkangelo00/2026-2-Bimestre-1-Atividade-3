@@ -5,7 +5,7 @@ Este relato faz parte do processo avaliativo da disciplina de Sistemas Operacion
 
 Tem como objetivo principal relatar as implementações de comunicação entre tarefas na linguagem **TypeScript (Node.js)**.
 
-O grupo de trabalho foi formado por: **[Insira os nomes dos integrantes]**.
+O grupo de trabalho foi formado por: **Arkângelo, Jadson e Luiz**.
 
 ---
 
