@@ -25,10 +25,6 @@ O uso do Docker garante um ambiente uniforme e isolado para execução do códig
 
 ---
 
-## 2. Roteiro Prático e Divisão da Apresentação em Sala
-
----
-
 ### Parte 1: Cenário 1 — Threads no Mesmo Processo (Luiz)
 
 #### Explicação:
